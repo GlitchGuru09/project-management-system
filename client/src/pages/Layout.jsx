@@ -23,10 +23,11 @@ const Layout = () => {
     //initial load of workspaces
     useEffect(() => {
         if(isLoaded && user && workspaces.length === 0){
-            dispatch(fetchWorkspaces(getToken));
+            dispatch(fetchWorkspaces({getToken}));
         }
     }, [user,isLoaded]);
 
+    
     if(!user){
         return (
             <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
@@ -44,7 +45,10 @@ const Layout = () => {
     if(user && workspaces.length === 0){
         return (
             <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
-                <CreateOrganization />
+                <CreateOrganization
+                    skipInvitationScreen
+                    afterCreateOrganizationUrl="/"
+                />
             </div>
         )
     }

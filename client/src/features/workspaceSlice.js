@@ -1,16 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../configs/api";
 
-export const fetchWorkspaces = createAsyncThunk("workspace/fetchWorkspaces", async (getTocken) => {
+export const fetchWorkspaces = createAsyncThunk("workspace/fetchWorkspaces", async ({getToken}) => {
     try {
         const data = await api.get('/api/workspaces', {
             headers: {
-                Authorization: `Bearer ${getTocken()}`
+                Authorization: `Bearer ${await getToken()}`
             }
         });
         return data.workspaces || [];
     } catch (error) {
-        console.error("Error fetching workspaces:", error);
+        console.error("Error fetching workspaces:", error.message);
         return [];
     }
 });
