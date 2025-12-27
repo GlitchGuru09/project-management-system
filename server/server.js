@@ -6,7 +6,6 @@ import { serve } from "inngest/express";
 import { inngest, functions } from "./inngest/index.js"
 import workspaceRouter from './routes/workspaceRoutes.js';
 import { protect } from './middlewares/authMiddleware.js';
-import cors from 'cors';
 
 const app = express();
 
@@ -17,7 +16,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(cors());
 app.use(clerkMiddleware())
 
 app.get('/', (req, res) => {
