@@ -1,17 +1,20 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../configs/api";
 
-export const fetchWorkspaces = createAsyncThunk("workspace/fetchWorkspaces", async ({getToken}) => {
+export const fetchWorkspaces = createAsyncThunk("workspace/fetchWorkspaces", async ({ getToken }, thunkAPI) => {
     try {
-        const data = await api.get('/api/workspaces', {
+        const token = await getToken();
+        const response = await api.get('/api/workspaces', {
             headers: {
-                Authorization: `Bearer ${await getToken()}`
+                Authorization: `Bearer ${token}`
             }
         });
-        return data.workspaces || [];
+        // axios returns response.data
+        return response.data?.workspaces || [];
     } catch (error) {
-        console.error("Error fetching workspaces:", error.message);
-        return [];
+        // better error details for debugging
+        console.error("Error fetching workspaces:", error.message, error.response?.status, error.response?.data, error.toJSON && error.toJSON());
+        return thunkAPI.rejectWithValue(error.response?.data || { message: error.message });
     }
 });
 
@@ -115,33 +118,32 @@ const workspaceSlice = createSlice({
                     )
                 } : w
             );
-        },
-
-        extraReducers: (builder) => {
-            builder.addCase(fetchWorkspaces.pending, (state) => {
-                state.loading = true;
-            });
-            builder.addCase(fetchWorkspaces.fulfilled, (state, action) => {
-                state.workspaces = action.payload;
-                if(action.payload.length > 0){
-                    const localStorageCurrentWorkspaceId = localStorage.getItem('currentWorkspaceId');
-                    if (localStorageCurrentWorkspaceId) {
-                        const findWorkspace = action.payload.find( (w) => w.id === localStorageCurrentWorkspaceId)
-                        if(findWorkspace){
-                            state.currentWorkspace = findWorkspace;
-                        }else{
-                            state.currentWorkspace = action.payload[0];
-                        }
-                    } else {
+        }
+    },
+    extraReducers: (builder) => {
+        builder.addCase(fetchWorkspaces.pending, (state) => {
+            state.loading = true;
+        });
+        builder.addCase(fetchWorkspaces.fulfilled, (state, action) => {
+            state.workspaces = action.payload;
+            if(action.payload.length > 0){
+                const localStorageCurrentWorkspaceId = localStorage.getItem('currentWorkspaceId');
+                if (localStorageCurrentWorkspaceId) {
+                    const findWorkspace = action.payload.find( (w) => w.id === localStorageCurrentWorkspaceId)
+                    if(findWorkspace){
+                        state.currentWorkspace = findWorkspace;
+                    }else{
                         state.currentWorkspace = action.payload[0];
                     }
+                } else {
+                    state.currentWorkspace = action.payload[0];
                 }
-                state.loading = false;
-            });
-            builder.addCase(fetchWorkspaces.rejected, (state) => {
-                state.loading = false;
-            });
-        }
+            }
+            state.loading = false;
+        });
+        builder.addCase(fetchWorkspaces.rejected, (state) => {
+            state.loading = false;
+        });
     }
 
 });
