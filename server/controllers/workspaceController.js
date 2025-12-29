@@ -5,7 +5,7 @@ import { prisma } from "../config/prisma.js";
 // Get all workspaces for user
 export const getUserWorkspaces = async (req, res) => {
     try {
-        const { userId } = await req.auth();
+        const { userId } = await req.auth() //logged in users ID;
         const workspaces = await prisma.workspace.findMany({
             where: {
                 members: { some: { userId: userId } }
@@ -31,7 +31,7 @@ export const getUserWorkspaces = async (req, res) => {
 //Add member to workspace
 export const addMember = async (req, res) => {
     try {
-        const { userId } = await req.auth();
+        const { userId } = await req.auth() //logged in users ID;
         const { email, role, workspaceId, message} = req.body;
 
         //check if user exists

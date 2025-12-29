@@ -7,7 +7,7 @@ import { prisma } from "../config/prisma.js";
 
 export const createProject = async (req, res) => {
     try {
-        const { userId } = await req.auth();
+        const { userId } = await req.auth() //logged in users ID;
         const { workspaceId, name, description, status, start_date, end_date, team_members, team_lead, progress, priority } = req.body;
 
         //check if user has admin role for workspace
@@ -84,7 +84,7 @@ export const createProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
     try {
-        const { userId } = await req.auth();
+        const { userId } = await req.auth() //logged in users ID;
         const { workspaceId, name, description, status, start_date, end_date, team_members, team_lead, progress, priority } = req.body;
 
         //check if user has admin role for workspace
@@ -134,7 +134,7 @@ export const updateProject = async (req, res) => {
 //add member to project
 export const addMember = async(req, res) => {
     try {
-        const { userId } = await req.auth();
+        const { userId } = await req.auth() //logged in users ID;
         const { projectId } = req.params;
         const { email } = req.body;
 

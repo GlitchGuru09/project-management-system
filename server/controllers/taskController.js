@@ -5,7 +5,7 @@ import { prisma } from "../config/prisma.js";
 //create task 
 export const createTask = async (req, res) => {
     try {
-        const { userId } = await req.auth()
+        const { userId } = await req.auth() //logged in users ID 
         const { projectId, title, description, type, status, priority, assigneeId, due_date } = req.body
         const origin = req.get('origin');
 
@@ -66,7 +66,7 @@ export const updateTask = async (req, res) => {
         if (!task) {
             return res.status(404).json({ message: 'Task not found' })
         }
-        const { userId } = await req.auth()
+        const { userId } = await req.auth() //logged in users ID
 
         //check if user has admin role for project
         const project = await prisma.project.findUnique({
@@ -95,7 +95,7 @@ export const updateTask = async (req, res) => {
 //delete task
 export const deleteTask = async (req, res) => {
     try {
-        const { userId } = await req.auth()
+        const { userId } = await req.auth() //logged in users ID
         const { taskIds } = req.body
         const tasks = await prisma.task.findMany({
             where: { id: { in: taskIds } }
