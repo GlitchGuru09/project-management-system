@@ -2,6 +2,8 @@
 
 //add comment
 
+import { prisma } from "../config/prisma.js";
+
 export const addComment = async (req, res) => {
     try {
         const {userId} = req.auth()

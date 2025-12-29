@@ -1,21 +1,22 @@
-import { inngest } from "../inngest";
+import { inngest } from "../inngest/index.js";
+import { prisma } from "../config/prisma.js";
 
 
 //create task 
 export const createTask = async (req, res) => {
     try {
-        const { userId } = req.auth()
+        const { userId } = await req.auth()
         const { projectId, title, description, type, status, priority, assigneeId, due_date } = req.body
         const origin = req.get('origin');
 
         //check if user has admin role for project
-        const project = await Project.findUnique({
+        const project = await prisma.project.findUnique({
             where: { id: projectId },
             include: { members: { include: { user: true } } }
         })
         if (!project) {
             return res.status(404).json({ message: 'Project not found' })
-        } else if (!project.team_lead !== userId) {
+        } else if (project.team_lead !== userId) {
             return res.status(403).json({ message: 'You do not have permission to update tasks for this project' })
         } else if (assigneeId && !project.members.find((member) => member.user.id === assigneeId)) {
             return res.status(400).json({ message: 'Assignee is not a member of the project' })
@@ -60,22 +61,21 @@ export const updateTask = async (req, res) => {
     try {
 
         const task = await prisma.task.findUnique({
-            where: { id: req.params.id },
-            data: req.body
-        })
+            where: { id: req.params.id }
+        });
         if (!task) {
             return res.status(404).json({ message: 'Task not found' })
         }
-        const { userId } = req.auth()
+        const { userId } = await req.auth()
 
         //check if user has admin role for project
-        const project = await Project.findUnique({
+        const project = await prisma.project.findUnique({
             where: { id: task.projectId },
             include: { members: { include: { user: true } } }
         })
         if (!project) {
             return res.status(404).json({ message: 'Project not found' })
-        } else if (!project.team_lead !== userId) {
+        } else if (project.team_lead !== userId) {
             return res.status(403).json({ message: 'You do not have permission to create tasks for this project' })
         }
 
@@ -84,7 +84,7 @@ export const updateTask = async (req, res) => {
             data: req.body
         });
 
-        res.json({ task: updateTask, message: 'Task updated successfully' });
+        res.json({ task: updatedTask, message: 'Task updated successfully' });
 
     } catch (error) {
         console.error(error);
@@ -95,7 +95,7 @@ export const updateTask = async (req, res) => {
 //delete task
 export const deleteTask = async (req, res) => {
     try {
-        const { userId } = req.auth()
+        const { userId } = await req.auth()
         const { taskIds } = req.body
         const tasks = await prisma.task.findMany({
             where: { id: { in: taskIds } }
@@ -104,13 +104,13 @@ export const deleteTask = async (req, res) => {
             return res.status(404).json({ message: 'No tasks found to delete' })
         }
 
-        const project = await Project.findUnique({
+        const project = await prisma.project.findUnique({
             where: { id: tasks[0].projectId },
             include: { members: { include: { user: true } } }
         })
         if (!project) {
             return res.status(404).json({ message: 'Project not found' })
-        } else if (!project.team_lead !== userId) {
+        } else if (project.team_lead !== userId) {
             return res.status(403).json({ message: 'You do not have permission to delete tasks for this project' })
         }
 

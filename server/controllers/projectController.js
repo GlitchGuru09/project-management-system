@@ -3,7 +3,7 @@
 //create project 
 
 import { err } from "inngest/types";
-import { prisma } from "../config/prisma";
+import { prisma } from "../config/prisma.js";
 
 export const createProject = async (req, res) => {
     try {
