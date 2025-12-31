@@ -85,7 +85,6 @@ export const createProject = async (req, res) => {
 export const updateProject = async (req, res) => {
     try {
         const { userId } = await req.auth() //logged in users ID;
-        const { id } = req.params;
         const { workspaceId, name, description, status, start_date, end_date, team_members, team_lead, progress, priority } = req.body;
 
         //check if user has admin role for workspace
